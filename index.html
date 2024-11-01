@@ -17,165 +17,113 @@
             background: linear-gradient(135deg, #1c1c1c, #4c4c4c);
             color: white;
             text-align: center;
-            overflow: hidden; /* Убираем прокрутку */
+            overflow: hidden;
         }
         .tap-area {
             position: relative;
-            width: 250px; /* Уменьшен размер области нажатия */
-            height: 250px;
-            background-image: url('https://raw.githubusercontent.com/Sergeityum/sergeityum.github.io/refs/heads/main/1.png');
+            width: 300px;
+            height: 300px;
+            background-image: url('https://raw.githubusercontent.com/Sergeityum/sergeityum.github.io/refs/heads/main/1.png'); /* Замените на вашу ссылку */
             background-size: cover;
             cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.3s;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            overflow: hidden; /* Обрезаем содержимое для анимации */
+            transition: transform 0.1s;
         }
         .tap-area:active {
             transform: scale(0.95);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
         }
         .score {
             position: absolute;
             top: 10px;
             left: 10px;
-            font-size: 28px;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px;
-            border-radius: 8px;
-            transition: transform 0.3s ease, color 0.3s ease;
-        }
-        .score.animated {
-            transform: scale(1.5);
-            color: #FFD700; /* Цвет при анимации */
+            font-size: 24px;
+            color: white;
         }
         .message {
             position: absolute;
             bottom: 10px;
             left: 10px;
             font-size: 18px;
-            color: #FFD700;
-            transition: opacity 0.3s ease;
-            opacity: 0;
+            color: yellow;
         }
-        .message.show {
-            opacity: 1; /* Показать сообщение */
-        }
-        table {
-            margin-top: 20px;
-            border-collapse: collapse;
-            width: 80%;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        th, td {
-            border: 1px solid #444;
-            padding: 10px;
-            text-align: center;
-        }
-        th {
-            background-color: #555;
-            font-weight: 600;
-        }
-        tbody tr:hover {
-            background-color: rgba(255, 215, 0, 0.2);
-        }
-        /* Анимация для фона */
-        .background-animation {
+        .heart {
             position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 20%, transparent 40%);
-            animation: pulse 4s infinite alternate;
-            z-index: -1; /* Позади остальных элементов */
+            font-size: 24px;
+            color: red;
+            animation: fly 1s forwards;
         }
-        @keyframes pulse {
+        @keyframes fly {
             0% {
-                transform: scale(1);
+                transform: translateY(0);
+                opacity: 1;
             }
             100% {
-                transform: scale(1.05);
+                transform: translateY(-100px);
+                opacity: 0;
             }
         }
     </style>
 </head>
 <body>
-    <div class="background-animation"></div>
     <div class="tap-area" onclick="handleTap()">
         <div class="score" id="score">Score: 0</div>
         <div class="message" id="message"></div>
     </div>
-
-    <table id="leaderboard">
-        <thead>
-            <tr>
-                <th>Игрок</th>
-                <th>Счет</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Здесь будет заполняться таблица рекордов -->
-        </tbody>
-    </table>
-
     <script>
         let score = 0;
         let tapCount = 0;
         let bonusActive = false;
         let bonusTapCount = 0;
-        const playerName = prompt("Введите ваше имя:") || "Игрок";
 
         function handleTap() {
             tapCount++;
             score += bonusActive ? 2 : 1; // Увеличиваем счет на 2, если активирован бонус
-            updateScoreDisplay();
+            document.getElementById('score').textContent = 'Score: ' + score;
+
+            // Генерируем сердечко при каждом нажатии
+            createHeart();
 
             // Отправка данных о счёте в бота после каждого клика
             Telegram.WebApp.sendData(JSON.stringify({ action: 'tap', score, tapCount }));
 
             // Условия для достижений
             if (tapCount % 10 === 0) {
-                showMessage('🎉 Поздравляем! Ты сделал ' + tapCount + ' тапов!');
+                document.getElementById('message').textContent = '🎉 Поздравляем! Ты сделал ' + tapCount + ' тапов!';
             }
             if (tapCount === 100) {
-                showMessage('🏆 Ты достиг 100 тапов!');
+                document.getElementById('message').textContent = '🏆 Ты достиг 100 тапов!';
             }
             if (tapCount % 15 === 0 && !bonusActive) {
                 activateBonus();
             }
 
-            // Обновление таблицы рекордов
-            updateLeaderboard();
-
-            // Отправка счета на сервер
-            submitScore();
-        }
-
-        function updateScoreDisplay() {
-            const scoreElement = document.getElementById('score');
-            scoreElement.textContent = 'Score: ' + score;
-            scoreElement.classList.add('animated'); // Добавляем анимацию
-
-            // Убираем анимацию через 0.3 секунды
+            // Сброс сообщения через 2 секунды
             setTimeout(() => {
-                scoreElement.classList.remove('animated');
-            }, 300);
-        }
-
-        function showMessage(text) {
-            const messageElement = document.getElementById('message');
-            messageElement.textContent = text;
-            messageElement.classList.add('show'); // Показать сообщение
-            setTimeout(() => {
-                messageElement.classList.remove('show'); // Скрыть сообщение
+                document.getElementById('message').textContent = '';
             }, 2000);
+        }
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.innerHTML = '❤️'; // Сердечко
+            document.body.appendChild(heart);
+
+            // Позиционируем сердечко в центре области нажатия
+            const tapArea = document.querySelector('.tap-area');
+            const rect = tapArea.getBoundingClientRect();
+            heart.style.left = `${rect.left + rect.width / 2 - 12}px`; // Центрируем
+            heart.style.top = `${rect.top + rect.height / 2}px`; // Ставим по вертикали
+
+            // Удаляем сердечко через 1 секунду
+            setTimeout(() => {
+                heart.remove();
+            }, 1000);
         }
 
         function activateBonus() {
             bonusActive = true;
             bonusTapCount = 0;
-            showMessage('⚡ Бонус активирован! Удвои свой счет на 10 тапов!');
+            document.getElementById('message').textContent = '⚡ Бонус активирован! Удвои свой счет на 10 тапов!';
             const bonusDuration = 10000; // Бонус длится 10 секунд
 
             const bonusTimer = setInterval(() => {
@@ -183,34 +131,9 @@
                 if (bonusTapCount >= 10) {
                     clearInterval(bonusTimer);
                     bonusActive = false;
-                    showMessage('Бонус завершён!');
+                    document.getElementById('message').textContent = 'Бонус завершён!';
                 }
             }, bonusDuration / 10); // Обновляем каждую 1 секунду
-        }
-
-        function updateLeaderboard() {
-            fetch('/leaderboard')
-                .then(response => response.json())
-                .then(data => {
-                    const tbody = document.querySelector('#leaderboard tbody');
-                    tbody.innerHTML = ''; // Очищаем предыдущие записи
-                    data.forEach(player => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `<td>${player.name}</td><td>${player.score}</td>`;
-                        tbody.appendChild(row);
-                    });
-                });
-        }
-
-        function submitScore() {
-            fetch('/submit_score', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ name: playerName, score: score })
-            }).then(response => response.json())
-              .then(data => console.log(data.message));
         }
 
         Telegram.WebApp.ready(); // Сообщаем, что Web App готова
