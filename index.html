@@ -14,6 +14,7 @@
             margin: 0;
             font-family: Arial, sans-serif;
             background-color: #222;
+            color: white;
         }
         .tap-area {
             position: relative;
@@ -32,7 +33,6 @@
             top: 10px;
             left: 10px;
             font-size: 24px;
-            color: white;
         }
         .message {
             position: absolute;
@@ -41,21 +41,18 @@
             font-size: 18px;
             color: yellow;
         }
-        .leaderboard {
+        table {
             margin-top: 20px;
-            color: white;
+            border-collapse: collapse;
+            width: 80%;
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 10px;
             text-align: center;
         }
-        .leaderboard table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .leaderboard th, .leaderboard td {
-            border: 1px solid white;
-            padding: 8px;
-        }
-        .leaderboard th {
-            background-color: #444;
+        th {
+            background-color: #555;
         }
     </style>
 </head>
@@ -65,27 +62,24 @@
         <div class="message" id="message"></div>
     </div>
 
-    <div class="leaderboard" id="leaderboard">
-        <h3>Таблица рекордов</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Игрок</th>
-                    <th>Очки</th>
-                </tr>
-            </thead>
-            <tbody id="leaderboard-body">
-                <!-- Здесь будут строки таблицы рекордов -->
-            </tbody>
-        </table>
-    </div>
+    <table id="leaderboard">
+        <thead>
+            <tr>
+                <th>Игрок</th>
+                <th>Счет</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Здесь будет заполняться таблица рекордов -->
+        </tbody>
+    </table>
 
     <script>
         let score = 0;
         let tapCount = 0;
         let bonusActive = false;
         let bonusTapCount = 0;
-
+        
         function handleTap() {
             tapCount++;
             score += bonusActive ? 2 : 1; // Увеличиваем счет на 2, если активирован бонус
@@ -105,13 +99,13 @@
                 activateBonus();
             }
 
-            // Обновление таблицы рекордов
-            updateLeaderboard();
-
             // Сброс сообщения через 2 секунды
             setTimeout(() => {
                 document.getElementById('message').textContent = '';
             }, 2000);
+
+            // Обновление таблицы рекордов
+            updateLeaderboard();
         }
 
         function activateBonus() {
@@ -131,12 +125,24 @@
         }
 
         function updateLeaderboard() {
-            // Здесь вы можете обновить таблицу рекордов.
-            // Для примера добавим новую строку с данными пользователя.
-            const leaderboardBody = document.getElementById('leaderboard-body');
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `<td>Игрок</td><td>${score}</td>`; // Здесь вы можете заменить "Игрок" на имя игрока, если оно доступно.
-            leaderboardBody.appendChild(newRow);
+            // Здесь вам нужно будет отправить текущий счет и имя игрока на сервер, чтобы сохранить его в базе данных
+            // Для примера, мы просто добавим статические данные
+            const tbody = document.querySelector('#leaderboard tbody');
+            tbody.innerHTML = ''; // Очищаем предыдущие записи
+
+            // Пример данных для таблицы
+            const players = [
+                { name: 'Игрок 1', score: 50 },
+                { name: 'Игрок 2', score: 40 },
+                { name: 'Игрок 3', score: 30 },
+            ];
+
+            // Добавление игроков в таблицу
+            players.forEach(player => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${player.name}</td><td>${player.score}</td>`;
+                tbody.appendChild(row);
+            });
         }
 
         Telegram.WebApp.ready(); // Сообщаем, что Web App готова
