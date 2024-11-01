@@ -21,6 +21,19 @@
             transition: background-color 0.5s ease;
         }
 
+        .score {
+            position: absolute;
+            top: 20px; /* Отступ сверху */
+            left: 20px; /* Отступ слева */
+            font-size: 24px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.6); /* Полупрозрачный фон для рамки */
+            padding: 10px;
+            border-radius: 8px; /* Закругление углов рамки */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
         .tap-area {
             position: relative;
             width: 250px; /* Уменьшено до 250px */
@@ -32,24 +45,12 @@
             border-radius: 50%; /* Делаем круглый элемент */
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
             overflow: hidden; /* Для предотвращения выхода сердечек за пределы области */
+            margin-top: 80px; /* Отступ сверху для разделения от счетчика */
         }
 
         .tap-area:active {
             transform: scale(0.95);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
-        }
-
-        .score {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            font-size: 24px;
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-            background: rgba(0, 0, 0, 0.6); /* Полупрозрачный фон для рамки */
-            padding: 10px;
-            border-radius: 8px; /* Закругление углов рамки */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
         }
 
         .message {
@@ -98,8 +99,8 @@
     </style>
 </head>
 <body>
+    <div class="score" id="score">Score: 0</div>
     <div class="tap-area" onclick="handleTap()">
-        <div class="score" id="score">Score: 0</div>
         <div class="message" id="message"></div>
     </div>
     <script>
