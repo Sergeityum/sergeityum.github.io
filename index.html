@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tap Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body, html {
             display: flex;
@@ -12,39 +13,49 @@
             align-items: center;
             height: 100%;
             margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #222;
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #1c1c1c, #4c4c4c);
             color: white;
+            text-align: center;
         }
         .tap-area {
             position: relative;
             width: 300px;
             height: 300px;
-            background-image: url('https://raw.githubusercontent.com/Sergeityum/sergeityum.github.io/refs/heads/main/1.png'); /* Замените на вашу ссылку */
+            background-image: url('https://raw.githubusercontent.com/Sergeityum/sergeityum.github.io/refs/heads/main/1.png');
             background-size: cover;
             cursor: pointer;
-            transition: transform 0.1s;
+            transition: transform 0.1s, box-shadow 0.3s;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
         }
         .tap-area:active {
             transform: scale(0.95);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
         }
         .score {
             position: absolute;
             top: 10px;
             left: 10px;
             font-size: 24px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 8px;
         }
         .message {
             position: absolute;
             bottom: 10px;
             left: 10px;
             font-size: 18px;
-            color: yellow;
+            color: #FFD700;
         }
         table {
             margin-top: 20px;
             border-collapse: collapse;
             width: 80%;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            overflow: hidden;
         }
         th, td {
             border: 1px solid #444;
@@ -53,6 +64,10 @@
         }
         th {
             background-color: #555;
+            font-weight: 600;
+        }
+        tbody tr:hover {
+            background-color: rgba(255, 215, 0, 0.2);
         }
     </style>
 </head>
@@ -79,7 +94,8 @@
         let tapCount = 0;
         let bonusActive = false;
         let bonusTapCount = 0;
-        
+        const playerName = prompt("Введите ваше имя:") || "Игрок";
+
         function handleTap() {
             tapCount++;
             score += bonusActive ? 2 : 1; // Увеличиваем счет на 2, если активирован бонус
@@ -106,6 +122,9 @@
 
             // Обновление таблицы рекордов
             updateLeaderboard();
+
+            // Отправка счета на сервер
+            submitScore();
         }
 
         function activateBonus() {
@@ -125,24 +144,28 @@
         }
 
         function updateLeaderboard() {
-            // Здесь вам нужно будет отправить текущий счет и имя игрока на сервер, чтобы сохранить его в базе данных
-            // Для примера, мы просто добавим статические данные
-            const tbody = document.querySelector('#leaderboard tbody');
-            tbody.innerHTML = ''; // Очищаем предыдущие записи
+            fetch('/leaderboard')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.querySelector('#leaderboard tbody');
+                    tbody.innerHTML = ''; // Очищаем предыдущие записи
+                    data.forEach(player => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `<td>${player.name}</td><td>${player.score}</td>`;
+                        tbody.appendChild(row);
+                    });
+                });
+        }
 
-            // Пример данных для таблицы
-            const players = [
-                { name: 'Игрок 1', score: 50 },
-                { name: 'Игрок 2', score: 40 },
-                { name: 'Игрок 3', score: 30 },
-            ];
-
-            // Добавление игроков в таблицу
-            players.forEach(player => {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td>${player.name}</td><td>${player.score}</td>`;
-                tbody.appendChild(row);
-            });
+        function submitScore() {
+            fetch('/submit_score', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: playerName, score: score })
+            }).then(response => response.json())
+              .then(data => console.log(data.message));
         }
 
         Telegram.WebApp.ready(); // Сообщаем, что Web App готова
