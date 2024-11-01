@@ -78,8 +78,8 @@
 
         .heart {
             position: absolute;
-            width: 20px;
-            height: 20px;
+            width: 30px; /* Увеличен размер сердечка */
+            height: 30px; /* Увеличен размер сердечка */
             background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Heart_icon_red.svg/1024px-Heart_icon_red.svg.png');
             background-size: cover;
             opacity: 0;
@@ -177,8 +177,8 @@
         function createHeartAnimation(x, y) {
             const heart = document.createElement('div');
             heart.className = 'heart';
-            heart.style.left = (x - 10) + 'px'; // Центрируем сердечко
-            heart.style.top = (y - 10) + 'px'; // Центрируем сердечко
+            heart.style.left = (x - 15) + 'px'; // Центрируем сердечко
+            heart.style.top = (y - 15) + 'px'; // Центрируем сердечко
             heart.style.opacity = 1;
             document.body.appendChild(heart);
 
