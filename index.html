@@ -7,6 +7,7 @@
     <style>
         body, html {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100%;
@@ -40,6 +41,22 @@
             font-size: 18px;
             color: yellow;
         }
+        .leaderboard {
+            margin-top: 20px;
+            color: white;
+            text-align: center;
+        }
+        .leaderboard table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .leaderboard th, .leaderboard td {
+            border: 1px solid white;
+            padding: 8px;
+        }
+        .leaderboard th {
+            background-color: #444;
+        }
     </style>
 </head>
 <body>
@@ -47,6 +64,22 @@
         <div class="score" id="score">Score: 0</div>
         <div class="message" id="message"></div>
     </div>
+
+    <div class="leaderboard" id="leaderboard">
+        <h3>Таблица рекордов</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Игрок</th>
+                    <th>Очки</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+                <!-- Здесь будут строки таблицы рекордов -->
+            </tbody>
+        </table>
+    </div>
+
     <script>
         let score = 0;
         let tapCount = 0;
@@ -72,6 +105,9 @@
                 activateBonus();
             }
 
+            // Обновление таблицы рекордов
+            updateLeaderboard();
+
             // Сброс сообщения через 2 секунды
             setTimeout(() => {
                 document.getElementById('message').textContent = '';
@@ -92,6 +128,15 @@
                     document.getElementById('message').textContent = 'Бонус завершён!';
                 }
             }, bonusDuration / 10); // Обновляем каждую 1 секунду
+        }
+
+        function updateLeaderboard() {
+            // Здесь вы можете обновить таблицу рекордов.
+            // Для примера добавим новую строку с данными пользователя.
+            const leaderboardBody = document.getElementById('leaderboard-body');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `<td>Игрок</td><td>${score}</td>`; // Здесь вы можете заменить "Игрок" на имя игрока, если оно доступно.
+            leaderboardBody.appendChild(newRow);
         }
 
         Telegram.WebApp.ready(); // Сообщаем, что Web App готова
