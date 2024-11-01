@@ -15,14 +15,7 @@
             margin: 0;
             font-family: 'Montserrat', sans-serif;
             overflow: hidden;
-            background: linear-gradient(135deg, #ff7e5f, #feb47b);
-            animation: gradient 15s ease infinite;
-        }
-
-        @keyframes gradient {
-            0% { background: #ff7e5f; }
-            50% { background: #feb47b; }
-            100% { background: #ff7e5f; }
+            background: #222; /* Фон стал однотонным */
         }
 
         .score {
@@ -68,40 +61,18 @@
 
         .firework {
             position: absolute;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            animation: explosion 1s forwards;
+            opacity: 1;
             pointer-events: none; /* Отключаем взаимодействие с фейерверком */
-            opacity: 0; /* Начальное состояние прозрачности */
-        }
-
-        @keyframes explosion {
-            0% {
-                transform: scale(0);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.2); /* Увеличиваем масштаб */
-            }
-            100% {
-                opacity: 0; /* Уменьшаем прозрачность */
-            }
         }
 
         .particle {
             position: absolute;
             border-radius: 50%;
-            animation: particleAnimation 1s forwards;
-        }
-
-        @keyframes particleAnimation {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-200px) scale(0);
-                opacity: 0;
-            }
+            opacity: 0;
+            pointer-events: none; /* Отключаем взаимодействие с частицами */
         }
     </style>
 </head>
@@ -130,47 +101,62 @@
         function launchFireworks() {
             const firework = document.createElement('div');
             firework.className = 'firework';
-            firework.style.width = '100px';
-            firework.style.height = '100px';
-            firework.style.backgroundColor = 'yellow';
-            firework.style.top = '50%';
+            firework.style.backgroundColor = getRandomColor();
+            firework.style.top = '80%'; // Начальная позиция снизу
             firework.style.left = '50%';
-            firework.style.transform = 'translate(-50%, -50%)';
-            firework.style.opacity = '1';
+            firework.style.transform = 'translate(-50%, 0)';
 
             document.body.appendChild(firework);
+            
+            // Анимация подъема фейерверка
+            firework.animate([
+                { transform: 'translate(-50%, 0)', opacity: 1 },
+                { transform: 'translate(-50%, -300px)', opacity: 1 },
+                { opacity: 0 }
+            ], {
+                duration: 1500, // Длительность подъема
+                easing: 'ease-out',
+                fill: 'forwards'
+            });
 
-            // Генерируем частицы фейерверка
+            setTimeout(() => {
+                createParticles(firework);
+                firework.remove(); // Удаляем фейерверк после завершения анимации
+            }, 1500);
+        }
+
+        function createParticles(firework) {
             for (let i = 0; i < 50; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
                 particle.style.width = '8px';
                 particle.style.height = '8px';
                 particle.style.backgroundColor = getRandomColor();
-                particle.style.top = '50%';
-                particle.style.left = '50%';
-                particle.style.transform = 'translate(-50%, -50%)';
-
-                // Устанавливаем случайный угол для каждой частицы
-                const angle = Math.random() * 2 * Math.PI; // Угол в радианах
-                const distance = Math.random() * 100; // Расстояние от центра
-                const x = distance * Math.cos(angle);
-                const y = distance * Math.sin(angle);
-
-                particle.style.transform += ` translate(${x}px, ${y}px)`;
+                particle.style.top = firework.offsetTop + 'px';
+                particle.style.left = firework.offsetLeft + 'px';
 
                 document.body.appendChild(particle);
+                
+                const angle = Math.random() * 2 * Math.PI; // Угол в радианах
+                const distance = Math.random() * 100 + 50; // Расстояние от центра
+                const x = distance * Math.cos(angle);
+                const y = distance * Math.sin(angle);
+                
+                // Анимация частиц
+                particle.animate([
+                    { transform: 'translate(0, 0)', opacity: 1 },
+                    { transform: `translate(${x}px, ${y}px)`, opacity: 0 }
+                ], {
+                    duration: 1000, // Длительность анимации частиц
+                    easing: 'ease-out',
+                    fill: 'forwards'
+                });
 
                 // Удаляем частицы через 1 секунду
                 setTimeout(() => {
                     particle.remove();
                 }, 1000);
             }
-
-            // Удаляем фейерверк через 1 секунду
-            setTimeout(() => {
-                firework.remove();
-            }, 1000);
         }
 
         function getRandomColor() {
