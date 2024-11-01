@@ -17,6 +17,7 @@
             background: linear-gradient(135deg, #1c1c1c, #4c4c4c);
             color: white;
             text-align: center;
+            overflow: hidden; /* Убираем прокрутку */
         }
         .tap-area {
             position: relative;
@@ -28,6 +29,7 @@
             transition: transform 0.1s, box-shadow 0.3s;
             border-radius: 15px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            overflow: hidden; /* Обрезаем содержимое для анимации */
         }
         .tap-area:active {
             transform: scale(0.95);
@@ -37,11 +39,11 @@
             position: absolute;
             top: 10px;
             left: 10px;
-            font-size: 24px;
+            font-size: 28px;
             background: rgba(0, 0, 0, 0.5);
             padding: 10px;
             border-radius: 8px;
-            transition: transform 0.3s ease; /* Анимация для начисления очков */
+            transition: transform 0.3s ease, color 0.3s ease;
         }
         .score.animated {
             transform: scale(1.5);
@@ -53,6 +55,11 @@
             left: 10px;
             font-size: 18px;
             color: #FFD700;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+        }
+        .message.show {
+            opacity: 1; /* Показать сообщение */
         }
         table {
             margin-top: 20px;
@@ -74,9 +81,27 @@
         tbody tr:hover {
             background-color: rgba(255, 215, 0, 0.2);
         }
+        /* Анимация для фона */
+        .background-animation {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 20%, transparent 40%);
+            animation: pulse 4s infinite alternate;
+            z-index: -1; /* Позади остальных элементов */
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            100% {
+                transform: scale(1.05);
+            }
+        }
     </style>
 </head>
 <body>
+    <div class="background-animation"></div>
     <div class="tap-area" onclick="handleTap()">
         <div class="score" id="score">Score: 0</div>
         <div class="message" id="message"></div>
@@ -111,19 +136,14 @@
 
             // Условия для достижений
             if (tapCount % 10 === 0) {
-                document.getElementById('message').textContent = '🎉 Поздравляем! Ты сделал ' + tapCount + ' тапов!';
+                showMessage('🎉 Поздравляем! Ты сделал ' + tapCount + ' тапов!');
             }
             if (tapCount === 100) {
-                document.getElementById('message').textContent = '🏆 Ты достиг 100 тапов!';
+                showMessage('🏆 Ты достиг 100 тапов!');
             }
             if (tapCount % 15 === 0 && !bonusActive) {
                 activateBonus();
             }
-
-            // Сброс сообщения через 2 секунды
-            setTimeout(() => {
-                document.getElementById('message').textContent = '';
-            }, 2000);
 
             // Обновление таблицы рекордов
             updateLeaderboard();
@@ -143,10 +163,19 @@
             }, 300);
         }
 
+        function showMessage(text) {
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = text;
+            messageElement.classList.add('show'); // Показать сообщение
+            setTimeout(() => {
+                messageElement.classList.remove('show'); // Скрыть сообщение
+            }, 2000);
+        }
+
         function activateBonus() {
             bonusActive = true;
             bonusTapCount = 0;
-            document.getElementById('message').textContent = '⚡ Бонус активирован! Удвои свой счет на 10 тапов!';
+            showMessage('⚡ Бонус активирован! Удвои свой счет на 10 тапов!');
             const bonusDuration = 10000; // Бонус длится 10 секунд
 
             const bonusTimer = setInterval(() => {
@@ -154,7 +183,7 @@
                 if (bonusTapCount >= 10) {
                     clearInterval(bonusTimer);
                     bonusActive = false;
-                    document.getElementById('message').textContent = 'Бонус завершён!';
+                    showMessage('Бонус завершён!');
                 }
             }, bonusDuration / 10); // Обновляем каждую 1 секунду
         }
