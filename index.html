@@ -23,29 +23,29 @@
 
         .score {
             position: absolute;
-            top: 20px; /* Отступ сверху */
-            left: 20px; /* Отступ слева */
+            top: 20px;
+            left: 20px;
             font-size: 24px;
             color: white;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-            background: rgba(0, 0, 0, 0.6); /* Полупрозрачный фон для рамки */
+            background: rgba(0, 0, 0, 0.6);
             padding: 10px;
-            border-radius: 8px; /* Закругление углов рамки */
+            border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
         }
 
         .tap-area {
             position: relative;
-            width: 250px; /* Уменьшено до 250px */
-            height: 250px; /* Уменьшено до 250px */
+            width: 250px;
+            height: 250px;
             background-image: url('https://raw.githubusercontent.com/Sergeityum/sergeityum.github.io/refs/heads/main/1.png');
             background-size: cover;
             cursor: pointer;
             transition: transform 0.1s, box-shadow 0.1s;
-            border-radius: 50%; /* Делаем круглый элемент */
+            border-radius: 50%;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-            overflow: hidden; /* Для предотвращения выхода сердечек за пределы области */
-            margin-top: 80px; /* Отступ сверху для разделения от счетчика */
+            overflow: hidden;
+            margin-top: 80px;
         }
 
         .tap-area:active {
@@ -60,18 +60,6 @@
             font-size: 18px;
             color: yellow;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-        }
-
-        .achievement {
-            position: absolute;
-            bottom: 50px;
-            left: 10px;
-            right: 10px;
-            font-size: 18px;
-            color: lightgreen;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-            opacity: 0; /* Скрыто по умолчанию */
-            transition: opacity 0.5s ease; /* Плавный переход для видимости */
         }
 
         .heart {
@@ -92,21 +80,25 @@
             }
         }
 
-        /* Пульсация фона при начислении очков */
-        @keyframes pulse {
-            0% {
-                background-color: #1c1c1c;
-            }
-            50% {
-                background-color: #4c4c4c;
-            }
-            100% {
-                background-color: #1c1c1c;
-            }
+        .firework {
+            position: absolute;
+            border-radius: 50%;
+            animation: explosion 1s forwards;
+            pointer-events: none; /* Отключаем взаимодействие с фейерверком */
         }
 
-        .animated-bg {
-            animation: pulse 0.5s forwards;
+        @keyframes explosion {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1);
+            }
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
         }
     </style>
 </head>
@@ -114,7 +106,6 @@
     <div class="score" id="score">Score: 0</div>
     <div class="tap-area" onclick="handleTap()">
         <div class="message" id="message"></div>
-        <div class="achievement" id="achievement"></div>
     </div>
     <script>
         let score = 0;
@@ -130,40 +121,31 @@
             // Генерируем сердечко при каждом нажатии
             createHeart();
 
-            // Добавляем пульсацию фона
-            document.body.classList.add('animated-bg');
-            setTimeout(() => {
-                document.body.classList.remove('animated-bg');
-            }, 500);
+            // Условия для достижения фейерверка
+            if (score === 100) {
+                launchFireworks();
+            }
 
             // Отправка данных о счёте в бота после каждого клика
             Telegram.WebApp.sendData(JSON.stringify({ action: 'tap', score, tapCount }));
-
-            // Условия для достижений
-            checkAchievements();
         }
 
-        function checkAchievements() {
-            const achievementDiv = document.getElementById('achievement');
-            let achievementMessage = '';
+        function launchFireworks() {
+            const firework = document.createElement('div');
+            firework.className = 'firework';
+            firework.style.width = '50px';
+            firework.style.height = '50px';
+            firework.style.backgroundColor = 'yellow';
+            firework.style.top = '50%';
+            firework.style.left = '50%';
+            firework.style.transform = 'translate(-50%, -50%)';
 
-            if (tapCount % 10 === 0) {
-                achievementMessage = '🎉 Поздравляем! Ты сделал ' + tapCount + ' тапов!';
-            }
-            if (tapCount === 100) {
-                achievementMessage = '🏆 Ты достиг 100 тапов!';
-            }
-            if (tapCount % 15 === 0 && !bonusActive) {
-                activateBonus();
-            }
+            document.body.appendChild(firework);
 
-            if (achievementMessage) {
-                achievementDiv.textContent = achievementMessage;
-                achievementDiv.style.opacity = 1; // Показываем достижение
-                setTimeout(() => {
-                    achievementDiv.style.opacity = 0; // Скрываем достижение через 2 секунды
-                }, 2000);
-            }
+            // Удаляем фейерверк через 1 секунду
+            setTimeout(() => {
+                firework.remove();
+            }, 1000);
         }
 
         function createHeart() {
@@ -182,22 +164,6 @@
             setTimeout(() => {
                 heart.remove();
             }, 1000);
-        }
-
-        function activateBonus() {
-            bonusActive = true;
-            bonusTapCount = 0;
-            document.getElementById('message').textContent = '⚡ Бонус активирован! Удвои свой счет на 10 тапов!';
-            const bonusDuration = 10000; // Бонус длится 10 секунд
-
-            const bonusTimer = setInterval(() => {
-                bonusTapCount++;
-                if (bonusTapCount >= 10) {
-                    clearInterval(bonusTimer);
-                    bonusActive = false;
-                    document.getElementById('message').textContent = 'Бонус завершён!';
-                }
-            }, bonusDuration / 10); // Обновляем каждую 1 секунду
         }
 
         Telegram.WebApp.ready(); // Сообщаем, что Web App готова
