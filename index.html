@@ -20,8 +20,8 @@
         }
         .tap-area {
             position: relative;
-            width: 300px;
-            height: 300px;
+            width: 250px; /* Уменьшен размер области нажатия */
+            height: 250px;
             background-image: url('https://raw.githubusercontent.com/Sergeityum/sergeityum.github.io/refs/heads/main/1.png');
             background-size: cover;
             cursor: pointer;
@@ -41,6 +41,11 @@
             background: rgba(0, 0, 0, 0.5);
             padding: 10px;
             border-radius: 8px;
+            transition: transform 0.3s ease; /* Анимация для начисления очков */
+        }
+        .score.animated {
+            transform: scale(1.5);
+            color: #FFD700; /* Цвет при анимации */
         }
         .message {
             position: absolute;
@@ -99,7 +104,7 @@
         function handleTap() {
             tapCount++;
             score += bonusActive ? 2 : 1; // Увеличиваем счет на 2, если активирован бонус
-            document.getElementById('score').textContent = 'Score: ' + score;
+            updateScoreDisplay();
 
             // Отправка данных о счёте в бота после каждого клика
             Telegram.WebApp.sendData(JSON.stringify({ action: 'tap', score, tapCount }));
@@ -125,6 +130,17 @@
 
             // Отправка счета на сервер
             submitScore();
+        }
+
+        function updateScoreDisplay() {
+            const scoreElement = document.getElementById('score');
+            scoreElement.textContent = 'Score: ' + score;
+            scoreElement.classList.add('animated'); // Добавляем анимацию
+
+            // Убираем анимацию через 0.3 секунды
+            setTimeout(() => {
+                scoreElement.classList.remove('animated');
+            }, 300);
         }
 
         function activateBonus() {
