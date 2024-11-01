@@ -15,8 +15,8 @@
             margin: 0;
             font-family: 'Montserrat', sans-serif;
             overflow: hidden;
-            background: linear-gradient(135deg, #ff7e5f, #feb47b); /* Градиентный фон */
-            animation: gradient 15s ease infinite; /* Анимация градиента */
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            animation: gradient 15s ease infinite;
         }
 
         @keyframes gradient {
@@ -66,29 +66,12 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
         }
 
-        .heart {
-            position: absolute;
-            font-size: 24px;
-            color: red;
-            animation: fly 1s forwards;
-        }
-
-        @keyframes fly {
-            0% {
-                transform: translateY(0);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-100px);
-                opacity: 0;
-            }
-        }
-
         .firework {
             position: absolute;
             border-radius: 50%;
-            animation: explosion 2s forwards;
+            animation: explosion 1s forwards;
             pointer-events: none; /* Отключаем взаимодействие с фейерверком */
+            opacity: 0; /* Начальное состояние прозрачности */
         }
 
         @keyframes explosion {
@@ -97,10 +80,26 @@
                 opacity: 1;
             }
             50% {
-                transform: scale(1.5); /* Увеличиваем масштаб для фейерверка */
+                transform: scale(1.2); /* Увеличиваем масштаб */
             }
             100% {
-                transform: scale(0);
+                opacity: 0; /* Уменьшаем прозрачность */
+            }
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: particleAnimation 1s forwards;
+        }
+
+        @keyframes particleAnimation {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-200px) scale(0);
                 opacity: 0;
             }
         }
@@ -122,54 +121,65 @@
             score += bonusActive ? 2 : 1; // Увеличиваем счет на 2, если активирован бонус
             document.getElementById('score').textContent = 'Score: ' + score;
 
-            // Генерируем сердечко при каждом нажатии
-            createHeart();
-
-            // Условия для достижения фейерверка
+            // Генерируем фейерверк при достижении 100 очков
             if (score === 100) {
                 launchFireworks();
             }
-
-            // Отправка данных о счёте в бота после каждого клика
-            Telegram.WebApp.sendData(JSON.stringify({ action: 'tap', score, tapCount }));
         }
 
         function launchFireworks() {
-            for (let i = 0; i < 5; i++) { // Запускаем несколько фейерверков
-                const firework = document.createElement('div');
-                firework.className = 'firework';
-                firework.style.width = '100px'; // Увеличиваем размер фейерверка
-                firework.style.height = '100px';
-                firework.style.backgroundColor = 'yellow';
-                firework.style.top = '50%';
-                firework.style.left = '50%';
-                firework.style.transform = 'translate(-50%, -50%)';
+            const firework = document.createElement('div');
+            firework.className = 'firework';
+            firework.style.width = '100px';
+            firework.style.height = '100px';
+            firework.style.backgroundColor = 'yellow';
+            firework.style.top = '50%';
+            firework.style.left = '50%';
+            firework.style.transform = 'translate(-50%, -50%)';
+            firework.style.opacity = '1';
 
-                document.body.appendChild(firework);
+            document.body.appendChild(firework);
 
-                // Удаляем фейерверк через 2 секунды
+            // Генерируем частицы фейерверка
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.width = '8px';
+                particle.style.height = '8px';
+                particle.style.backgroundColor = getRandomColor();
+                particle.style.top = '50%';
+                particle.style.left = '50%';
+                particle.style.transform = 'translate(-50%, -50%)';
+
+                // Устанавливаем случайный угол для каждой частицы
+                const angle = Math.random() * 2 * Math.PI; // Угол в радианах
+                const distance = Math.random() * 100; // Расстояние от центра
+                const x = distance * Math.cos(angle);
+                const y = distance * Math.sin(angle);
+
+                particle.style.transform += ` translate(${x}px, ${y}px)`;
+
+                document.body.appendChild(particle);
+
+                // Удаляем частицы через 1 секунду
                 setTimeout(() => {
-                    firework.remove();
-                }, 2000);
+                    particle.remove();
+                }, 1000);
             }
+
+            // Удаляем фейерверк через 1 секунду
+            setTimeout(() => {
+                firework.remove();
+            }, 1000);
         }
 
-        function createHeart() {
-            const heart = document.createElement('div');
-            heart.className = 'heart';
-            heart.innerHTML = '❤️'; // Сердечко
-            document.body.appendChild(heart);
-
-            // Позиционируем сердечко в центре области нажатия
-            const tapArea = document.querySelector('.tap-area');
-            const rect = tapArea.getBoundingClientRect();
-            heart.style.left = `${rect.left + rect.width / 2 - 12}px`; // Центрируем
-            heart.style.top = `${rect.top + rect.height / 2}px`; // Ставим по вертикали
-
-            // Удаляем сердечко через 1 секунду
-            setTimeout(() => {
-                heart.remove();
-            }, 1000);
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
         }
 
         Telegram.WebApp.ready(); // Сообщаем, что Web App готова
