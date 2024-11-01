@@ -51,12 +51,12 @@
         let score = 0;
         let tapCount = 0;
         let bonusActive = false;
+        let bonusTapCount = 0;
 
         function handleTap() {
             tapCount++;
             score += bonusActive ? 2 : 1; // Увеличиваем счет на 2, если активирован бонус
             document.getElementById('score').textContent = 'Score: ' + score;
-            document.getElementById('message').textContent = '';
 
             // Отправка данных о счёте в бота после каждого клика
             Telegram.WebApp.sendData(JSON.stringify({ action: 'tap', score, tapCount }));
@@ -68,18 +68,30 @@
             if (tapCount === 100) {
                 document.getElementById('message').textContent = '🏆 Ты достиг 100 тапов!';
             }
-            if (tapCount % 15 === 0) {
+            if (tapCount % 15 === 0 && !bonusActive) {
                 activateBonus();
             }
+
+            // Сброс сообщения через 2 секунды
+            setTimeout(() => {
+                document.getElementById('message').textContent = '';
+            }, 2000);
         }
 
         function activateBonus() {
             bonusActive = true;
+            bonusTapCount = 0;
             document.getElementById('message').textContent = '⚡ Бонус активирован! Удвои свой счет на 10 тапов!';
-            setTimeout(() => {
-                bonusActive = false;
-                document.getElementById('message').textContent = 'Бонус завершён!';
-            }, 10000); // Бонус длится 10 секунд
+            const bonusDuration = 10000; // Бонус длится 10 секунд
+
+            const bonusTimer = setInterval(() => {
+                bonusTapCount++;
+                if (bonusTapCount >= 10) {
+                    clearInterval(bonusTimer);
+                    bonusActive = false;
+                    document.getElementById('message').textContent = 'Бонус завершён!';
+                }
+            }, bonusDuration / 10); // Обновляем каждую 1 секунду
         }
 
         Telegram.WebApp.ready(); // Сообщаем, что Web App готова
