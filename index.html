@@ -15,7 +15,8 @@
             margin: 0;
             font-family: 'Montserrat', sans-serif;
             overflow: hidden;
-            background: #222; /* Фон стал однотонным */
+            background: url('https://media.giphy.com/media/xUPGcryv5B9O3H0lmA/giphy.gif') no-repeat center center fixed; /* Задний фон с анимацией */
+            background-size: cover;
         }
 
         .score {
@@ -178,6 +179,7 @@
             heart.className = 'heart';
             heart.style.left = (x - 10) + 'px'; // Центрируем сердечко
             heart.style.top = (y - 10) + 'px'; // Центрируем сердечко
+            heart.style.opacity = 1;
             document.body.appendChild(heart);
 
             // Анимация сердечка
