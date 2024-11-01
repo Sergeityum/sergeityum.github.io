@@ -14,11 +14,15 @@
             height: 100%;
             margin: 0;
             font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(135deg, #1c1c1c, #4c4c4c);
-            color: white;
-            text-align: center;
             overflow: hidden;
-            transition: background-color 0.5s ease;
+            background: linear-gradient(135deg, #ff7e5f, #feb47b); /* Градиентный фон */
+            animation: gradient 15s ease infinite; /* Анимация градиента */
+        }
+
+        @keyframes gradient {
+            0% { background: #ff7e5f; }
+            50% { background: #feb47b; }
+            100% { background: #ff7e5f; }
         }
 
         .score {
@@ -83,7 +87,7 @@
         .firework {
             position: absolute;
             border-radius: 50%;
-            animation: explosion 1s forwards;
+            animation: explosion 2s forwards;
             pointer-events: none; /* Отключаем взаимодействие с фейерверком */
         }
 
@@ -93,7 +97,7 @@
                 opacity: 1;
             }
             50% {
-                transform: scale(1);
+                transform: scale(1.5); /* Увеличиваем масштаб для фейерверка */
             }
             100% {
                 transform: scale(0);
@@ -131,21 +135,23 @@
         }
 
         function launchFireworks() {
-            const firework = document.createElement('div');
-            firework.className = 'firework';
-            firework.style.width = '50px';
-            firework.style.height = '50px';
-            firework.style.backgroundColor = 'yellow';
-            firework.style.top = '50%';
-            firework.style.left = '50%';
-            firework.style.transform = 'translate(-50%, -50%)';
+            for (let i = 0; i < 5; i++) { // Запускаем несколько фейерверков
+                const firework = document.createElement('div');
+                firework.className = 'firework';
+                firework.style.width = '100px'; // Увеличиваем размер фейерверка
+                firework.style.height = '100px';
+                firework.style.backgroundColor = 'yellow';
+                firework.style.top = '50%';
+                firework.style.left = '50%';
+                firework.style.transform = 'translate(-50%, -50%)';
 
-            document.body.appendChild(firework);
+                document.body.appendChild(firework);
 
-            // Удаляем фейерверк через 1 секунду
-            setTimeout(() => {
-                firework.remove();
-            }, 1000);
+                // Удаляем фейерверк через 2 секунды
+                setTimeout(() => {
+                    firework.remove();
+                }, 2000);
+            }
         }
 
         function createHeart() {
