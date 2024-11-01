@@ -74,6 +74,15 @@
             opacity: 0;
             pointer-events: none; /* Отключаем взаимодействие с частицами */
         }
+
+        .heart {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Heart_icon_red.svg/1024px-Heart_icon_red.svg.png');
+            background-size: cover;
+            opacity: 0;
+        }
     </style>
 </head>
 <body>
@@ -96,6 +105,9 @@
             if (score === 10) {
                 launchFireworks();
             }
+
+            // Генерация сердечек
+            createHeartAnimation(event.clientX, event.clientY);
         }
 
         function launchFireworks() {
@@ -157,6 +169,30 @@
                     particle.remove();
                 }, 1000);
             }
+        }
+
+        function createHeartAnimation(x, y) {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.style.left = (x - 10) + 'px'; // Центрируем сердечко
+            heart.style.top = (y - 10) + 'px'; // Центрируем сердечко
+            document.body.appendChild(heart);
+
+            // Анимация сердечка
+            heart.animate([
+                { transform: 'translate(0, 0)', opacity: 1 },
+                { transform: 'translate(0, -100px)', opacity: 1 },
+                { transform: 'translate(0, -150px)', opacity: 0 }
+            ], {
+                duration: 2000, // Длительность анимации
+                easing: 'ease-out',
+                fill: 'forwards'
+            });
+
+            // Удаляем сердечко через 2 секунды
+            setTimeout(() => {
+                heart.remove();
+            }, 2000);
         }
 
         function getRandomColor() {
