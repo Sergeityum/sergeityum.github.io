@@ -15,7 +15,7 @@
             margin: 0;
             font-family: 'Montserrat', sans-serif;
             overflow: hidden;
-            background: url('https://media.giphy.com/media/xUPGcryv5B9O3H0lmA/giphy.gif') no-repeat center center fixed; /* Задний фон с анимацией */
+            background: url('https://images.unsplash.com/photo-1525102014592-2339aaf4c7a6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc3MTV8MHwxfGFsbHwxfHx8fHx8fHwxNjE4NzUwNzM2&ixlib=rb-1.2.1&q=80&w=1080') no-repeat center center fixed; /* Интересный фон */
             background-size: cover;
         }
 
@@ -43,8 +43,8 @@
             transition: transform 0.1s, box-shadow 0.1s;
             border-radius: 50%;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
             margin-top: 80px;
+            overflow: hidden; /* Скрыть все, что выходит за пределы элемента */
         }
 
         .tap-area:active {
@@ -52,23 +52,14 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
         }
 
-        .message {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            font-size: 18px;
-            color: yellow;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-        }
-
         .heart {
             position: absolute;
-            width: 30px; /* Увеличен размер сердечка */
-            height: 30px; /* Увеличен размер сердечка */
+            width: 30px; /* Размер сердечка */
+            height: 30px; /* Размер сердечка */
             background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Heart_icon_red.svg/1024px-Heart_icon_red.svg.png');
             background-size: cover;
             opacity: 0;
-            z-index: 10; /* Повышаем z-index, чтобы сердечки были на переднем плане */
+            z-index: 10; /* Сердечки выше остальных элементов */
         }
     </style>
 </head>
@@ -79,85 +70,13 @@
     </div>
     <script>
         let score = 0;
-        let tapCount = 0;
-        let bonusActive = false;
-        let bonusTapCount = 0;
 
         function handleTap(event) {
-            tapCount++;
-            score += bonusActive ? 2 : 1; // Увеличиваем счет на 2, если активирован бонус
+            score++;
             document.getElementById('score').textContent = 'Score: ' + score;
-
-            // Генерируем фейерверк при достижении 10 очков
-            if (score === 10) {
-                launchFireworks(event.clientX, event.clientY);
-            }
 
             // Генерация сердечек
             createHeartAnimation(event.clientX, event.clientY);
-        }
-
-        function launchFireworks(x, y) {
-            for (let i = 0; i < 30; i++) { // Создаем несколько фейерверков
-                const firework = document.createElement('div');
-                firework.className = 'firework';
-                firework.style.backgroundColor = getRandomColor();
-                firework.style.top = '80%'; // Начальная позиция снизу
-                firework.style.left = x + 'px'; // Позиция по клику
-                firework.style.transform = 'translate(-50%, 0)';
-
-                document.body.appendChild(firework);
-                
-                // Анимация подъема фейерверка
-                firework.animate([
-                    { transform: 'translate(-50%, 0)', opacity: 1 },
-                    { transform: 'translate(-50%, -300px)', opacity: 1 },
-                    { opacity: 0 }
-                ], {
-                    duration: 1500, // Длительность подъема
-                    easing: 'ease-out',
-                    fill: 'forwards'
-                });
-
-                setTimeout(() => {
-                    createParticles(firework, x, 80); // Создаем частицы на позиции фейерверка
-                    firework.remove(); // Удаляем фейерверк после завершения анимации
-                }, 1500);
-            }
-        }
-
-        function createParticles(firework, x, y) {
-            for (let i = 0; i < 50; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.width = '8px';
-                particle.style.height = '8px';
-                particle.style.backgroundColor = getRandomColor();
-                particle.style.top = y + 'px';
-                particle.style.left = x + 'px';
-
-                document.body.appendChild(particle);
-                
-                const angle = Math.random() * 2 * Math.PI; // Угол в радианах
-                const distance = Math.random() * 100 + 50; // Расстояние от центра
-                const xOffset = distance * Math.cos(angle);
-                const yOffset = distance * Math.sin(angle);
-                
-                // Анимация частиц
-                particle.animate([
-                    { transform: 'translate(0, 0)', opacity: 1 },
-                    { transform: `translate(${xOffset}px, ${yOffset}px)`, opacity: 0 }
-                ], {
-                    duration: 1000, // Длительность анимации частиц
-                    easing: 'ease-out',
-                    fill: 'forwards'
-                });
-
-                // Удаляем частицы через 1 секунду
-                setTimeout(() => {
-                    particle.remove();
-                }, 1000);
-            }
         }
 
         function createHeartAnimation(x, y) {
@@ -183,15 +102,6 @@
             setTimeout(() => {
                 heart.remove();
             }, 2000);
-        }
-
-        function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
         }
 
         Telegram.WebApp.ready(); // Сообщаем, что Web App готова
