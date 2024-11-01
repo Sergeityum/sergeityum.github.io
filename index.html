@@ -12,12 +12,13 @@
             height: 100%;
             margin: 0;
             font-family: Arial, sans-serif;
+            background-color: #222;
         }
         .tap-area {
             position: relative;
             width: 300px;
             height: 300px;
-            background-image: url('https://raw.githubusercontent.com/Sergeityum/sergeityum.github.io/refs/heads/main/1.png'); /* Ссылка на изображение */
+            background-image: url('https://raw.githubusercontent.com/Sergeityum/sergeityum.github.io/refs/heads/main/1.png'); /* Замените на вашу ссылку */
             background-size: cover;
             cursor: pointer;
         }
@@ -28,20 +29,40 @@
             font-size: 24px;
             color: white;
         }
+        .message {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 18px;
+            color: yellow;
+        }
     </style>
 </head>
 <body>
     <div class="tap-area" onclick="handleTap()">
         <div class="score" id="score">Score: 0</div>
+        <div class="message" id="message"></div>
     </div>
     <script>
         let score = 0;
+        let tapCount = 0;
 
         function handleTap() {
+            tapCount++;
             score++;
             document.getElementById('score').textContent = 'Score: ' + score;
+            document.getElementById('message').textContent = '';
+
             // Отправка данных о счёте в бота после каждого клика
-            Telegram.WebApp.sendData(JSON.stringify({ action: 'tap', score }));
+            Telegram.WebApp.sendData(JSON.stringify({ action: 'tap', score, tapCount }));
+
+            // Условия для достижений
+            if (tapCount % 10 === 0) {
+                document.getElementById('message').textContent = '🎉 Поздравляем! Ты сделал ' + tapCount + ' тапов!';
+            }
+            if (tapCount === 100) {
+                document.getElementById('message').textContent = '🏆 Ты достиг 100 тапов!';
+            }
         }
 
         Telegram.WebApp.ready(); // Сообщаем, что Web App готова
