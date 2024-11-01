@@ -62,6 +62,18 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
         }
 
+        .achievement {
+            position: absolute;
+            bottom: 50px;
+            left: 10px;
+            right: 10px;
+            font-size: 18px;
+            color: lightgreen;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+            opacity: 0; /* Скрыто по умолчанию */
+            transition: opacity 0.5s ease; /* Плавный переход для видимости */
+        }
+
         .heart {
             position: absolute;
             font-size: 24px;
@@ -102,6 +114,7 @@
     <div class="score" id="score">Score: 0</div>
     <div class="tap-area" onclick="handleTap()">
         <div class="message" id="message"></div>
+        <div class="achievement" id="achievement"></div>
     </div>
     <script>
         let score = 0;
@@ -127,20 +140,30 @@
             Telegram.WebApp.sendData(JSON.stringify({ action: 'tap', score, tapCount }));
 
             // Условия для достижений
+            checkAchievements();
+        }
+
+        function checkAchievements() {
+            const achievementDiv = document.getElementById('achievement');
+            let achievementMessage = '';
+
             if (tapCount % 10 === 0) {
-                document.getElementById('message').textContent = '🎉 Поздравляем! Ты сделал ' + tapCount + ' тапов!';
+                achievementMessage = '🎉 Поздравляем! Ты сделал ' + tapCount + ' тапов!';
             }
             if (tapCount === 100) {
-                document.getElementById('message').textContent = '🏆 Ты достиг 100 тапов!';
+                achievementMessage = '🏆 Ты достиг 100 тапов!';
             }
             if (tapCount % 15 === 0 && !bonusActive) {
                 activateBonus();
             }
 
-            // Сброс сообщения через 2 секунды
-            setTimeout(() => {
-                document.getElementById('message').textContent = '';
-            }, 2000);
+            if (achievementMessage) {
+                achievementDiv.textContent = achievementMessage;
+                achievementDiv.style.opacity = 1; // Показываем достижение
+                setTimeout(() => {
+                    achievementDiv.style.opacity = 0; // Скрываем достижение через 2 секунды
+                }, 2000);
+            }
         }
 
         function createHeart() {
