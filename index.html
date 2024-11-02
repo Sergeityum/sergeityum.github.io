@@ -15,7 +15,7 @@
             margin: 0;
             font-family: 'Montserrat', sans-serif;
             overflow: hidden;
-            background: url('https://images.unsplash.com/photo-1525102014592-2339aaf4c7a6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc3MTV8MHwxfGFsbHwxfHx8fHx8fHwxNjE4NzUwNzM2&ixlib=rb-1.2.1&q=80&w=1080') no-repeat center center fixed; /* Интересный фон */
+            background: url('https://images.unsplash.com/photo-1525102014592-2339aaf4c7a6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc3MTV8MHwxfGFsbHwxfHx8fHx8fHwxNjE4NzUwNzM2&ixlib=rb-1.2.1&q=80&w=1080') no-repeat center center fixed;
             background-size: cover;
         }
 
@@ -30,7 +30,7 @@
             padding: 10px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-            z-index: 10; /* Повышаем z-index, чтобы счетчик был на переднем плане */
+            z-index: 10;
         }
 
         .tap-area {
@@ -44,7 +44,7 @@
             border-radius: 50%;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
             margin-top: 80px;
-            overflow: hidden; /* Скрыть все, что выходит за пределы элемента */
+            overflow: hidden;
         }
 
         .tap-area:active {
@@ -54,20 +54,20 @@
 
         .heart {
             position: absolute;
-            width: 30px; /* Размер сердечка */
-            height: 30px; /* Размер сердечка */
+            width: 30px;
+            height: 30px;
             background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Heart_icon_red.svg/1024px-Heart_icon_red.svg.png');
             background-size: cover;
-            opacity: 0;
-            z-index: 10; /* Сердечки выше остальных элементов */
+            opacity: 1;
+            transition: transform 2s, opacity 2s;
+            z-index: 20; /* Поднимаем над всеми элементами */
         }
     </style>
 </head>
 <body>
     <div class="score" id="score">Score: 0</div>
-    <div class="tap-area" onclick="handleTap(event)">
-        <div class="message" id="message"></div>
-    </div>
+    <div class="tap-area" onclick="handleTap(event)"></div>
+
     <script>
         let score = 0;
 
@@ -75,30 +75,22 @@
             score++;
             document.getElementById('score').textContent = 'Score: ' + score;
 
-            // Генерация сердечек
-            createHeartAnimation(event.clientX, event.clientY);
-        }
-
-        function createHeartAnimation(x, y) {
+            // Создаем сердечко
             const heart = document.createElement('div');
             heart.className = 'heart';
-            heart.style.left = (x - 15) + 'px'; // Центрируем сердечко
-            heart.style.top = (y - 15) + 'px'; // Центрируем сердечко
-            heart.style.opacity = 1;
             document.body.appendChild(heart);
 
-            // Анимация сердечка
-            heart.animate([
-                { transform: 'translate(0, 0)', opacity: 1 },
-                { transform: 'translate(0, -100px)', opacity: 1 },
-                { transform: 'translate(0, -150px)', opacity: 0 }
-            ], {
-                duration: 2000, // Длительность анимации
-                easing: 'ease-out',
-                fill: 'forwards'
-            });
+            // Устанавливаем начальное положение сердечка
+            heart.style.left = event.clientX + 'px';
+            heart.style.top = event.clientY + 'px';
 
-            // Удаляем сердечко через 2 секунды
+            // Анимируем сердечко вверх и уменьшаем прозрачность
+            setTimeout(() => {
+                heart.style.transform = 'translateY(-100px)';
+                heart.style.opacity = 0;
+            }, 50);
+
+            // Удаляем сердечко из DOM после завершения анимации
             setTimeout(() => {
                 heart.remove();
             }, 2000);
