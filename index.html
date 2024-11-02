@@ -4,96 +4,125 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tap Game</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        /* Основные стили для страницы */
         body, html {
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100%;
             margin: 0;
-            font-family: 'Montserrat', sans-serif;
+            font-family: Arial, sans-serif;
+            background: radial-gradient(circle, #141E30, #243B55); /* Фоновый градиент */
             overflow: hidden;
-            background: url('https://images.unsplash.com/photo-1525102014592-2339aaf4c7a6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc3MTV8MHwxfGFsbHwxfHx8fHx8fHwxNjE4NzUwNzM2&ixlib=rb-1.2.1&q=80&w=1080') no-repeat center center fixed;
-            background-size: cover;
         }
 
-        .score {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            font-size: 24px;
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-            background: rgba(0, 0, 0, 0.6);
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-            z-index: 10;
-        }
-
+        /* Картинка и счетчик очков */
         .tap-area {
             position: relative;
             width: 250px;
             height: 250px;
-            background-image: url('https://raw.githubusercontent.com/Sergeityum/sergeityum.github.io/refs/heads/main/1.png');
+            border-radius: 50%; /* Делаем картинку круглой */
+            background-image: url('https://raw.githubusercontent.com/Sergeityum/sergeityum.github.io/refs/heads/main/1.png'); /* Замените на ссылку на вашу картинку */
             background-size: cover;
+            background-position: center;
             cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.1s;
-            border-radius: 50%;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-            margin-top: 80px;
-            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.1s;
         }
 
+        /* Анимация нажатия */
         .tap-area:active {
             transform: scale(0.95);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
         }
 
+        /* Счетчик очков */
+        .score {
+            position: absolute;
+            top: -50px;
+            font-size: 24px;
+            color: #fff;
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Сердечки */
         .heart {
             position: absolute;
-            width: 30px;
-            height: 30px;
-            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Heart_icon_red.svg/1024px-Heart_icon_red.svg.png');
-            background-size: cover;
-            opacity: 1;
-            transition: transform 3s, opacity 3s;
-            z-index: 20;
+            font-size: 24px;
+            color: #ff69b4;
+            animation: flyUp 1.5s ease-in-out forwards;
+        }
+
+        /* Анимация полета сердечек вверх */
+        @keyframes flyUp {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(-100px); opacity: 0; }
+        }
+
+        /* Анимация фейерверка */
+        .firework {
+            position: absolute;
+            font-size: 24px;
+            color: yellow;
+            animation: explode 1s ease-out forwards;
+        }
+
+        @keyframes explode {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(3); opacity: 0; }
         }
     </style>
 </head>
 <body>
+    <!-- Область нажатия и счетчик очков -->
     <div class="score" id="score">Score: 0</div>
-    <div class="tap-area" onclick="handleTap(event)"></div>
+    <div class="tap-area" onclick="handleTap()"></div>
 
     <script>
         let score = 0;
+        let tapCount = 0;
 
-        function handleTap(event) {
+        function handleTap() {
             score++;
+            tapCount++;
             document.getElementById('score').textContent = 'Score: ' + score;
 
-            // Создаем сердечко
+            // Генерация сердечка
             const heart = document.createElement('div');
-            heart.className = 'heart';
-            document.body.appendChild(heart);
+            heart.classList.add('heart');
+            heart.textContent = '❤️';
+            heart.style.left = Math.random() * 80 + '%'; // случайное положение по горизонтали
+            heart.style.top = Math.random() * 80 + '%'; // случайное положение по вертикали
+            document.querySelector('.tap-area').appendChild(heart);
 
-            // Устанавливаем начальное положение сердечка
-            heart.style.left = event.clientX + 'px';
-            heart.style.top = event.clientY + 'px';
+            // Удаление сердечка после анимации
+            setTimeout(() => heart.remove(), 1500);
 
-            // Анимируем сердечко вверх и уменьшаем прозрачность
-            setTimeout(() => {
-                heart.style.transform = 'translateY(-150px)';
-                heart.style.opacity = 0;
-            }, 50);
+            // Запуск фейерверка при достижении 10 очков
+            if (tapCount === 10) {
+                launchFirework();
+                tapCount = 0; // сброс для повторного запуска
+            }
 
-            // Удаляем сердечко из DOM после завершения анимации
-            setTimeout(() => {
-                heart.remove();
-            }, 3000);
+            // Отправка данных в бота
+            Telegram.WebApp.sendData(JSON.stringify({ action: 'tap', score }));
+        }
+
+        function launchFirework() {
+            for (let i = 0; i < 20; i++) { // Несколько фейерверков
+                const firework = document.createElement('div');
+                firework.classList.add('firework');
+                firework.style.left = Math.random() * 100 + 'px';
+                firework.style.top = Math.random() * 100 + 'px';
+                firework.textContent = '✨';
+                document.body.appendChild(firework);
+
+                // Удаление фейерверка после анимации
+                setTimeout(() => firework.remove(), 1000);
+            }
         }
 
         Telegram.WebApp.ready(); // Сообщаем, что Web App готова
